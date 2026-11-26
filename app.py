@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from engine import generate, metrics, scenario
 st.set_page_config(page_title="Decision Intelligence",layout="wide")
+st.caption("ANALYTICS INTELLIGENCE LAB | Independent portfolio project")
 st.title("Decision Intelligence | Operations")
 st.caption("Synthetic appointments · descriptive analysis, not causal inference")
 df=generate()
@@ -27,3 +28,7 @@ st.metric("Potential recovered visits",f'{s["recovered"]:,.1f}')
 st.metric("Potential gross value (BRL)",f'{s["potential_value"]:,.2f}')
 st.caption("Not guaranteed revenue or savings. Investigate high-rate segments before intervention.")
 st.download_button("Export filtered data",df.to_csv(index=False),"appointments.csv")
+
+
+st.divider()
+st.caption("Rodrigo Alcantara | Analytics Intelligence Lab | Synthetic demonstration")
