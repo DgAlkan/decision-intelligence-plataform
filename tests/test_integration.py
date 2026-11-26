@@ -1,3 +1,4 @@
+from pathlib import Path
 import pandas as pd
 import duckdb
 from streamlit.testing.v1 import AppTest
@@ -22,6 +23,6 @@ def test_cancelled_only():
     assert metrics(pd.DataFrame({"id":[1],"status":["Cancelled"]}))["rate"] is None
 
 def test_app():
-    a=AppTest.from_file("app.py",default_timeout=60).run()
+    a=AppTest.from_file(str(Path(__file__).resolve().parents[1] / "app.py"),default_timeout=60).run()
     assert not a.exception
     assert len(a.metric)>=5
