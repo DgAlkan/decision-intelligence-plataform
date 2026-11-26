@@ -1,8 +1,6 @@
-## v2.0 dashboard update
-
-[Live demo](https://dgalkan-decision-intelligence.streamlit.app) 
-
 # Decision Intelligence Platform
+
+[Live demo](https://dgalkan-decision-intelligence.streamlit.app)
 
 Independent portfolio project by Rodrigo Alcantara.
 
@@ -25,9 +23,5 @@ Run SQL with DuckDB from the repository root after generating the CSV. See [meth
 - app.py: interactive dashboard and CSV export
 - sql/analysis.sql: analytical SQL
 - tests/: automated checks
-- github/workflows/: CI configuration
+- .github/workflows/: CI configuration
 
-## Original introduction
-
-# decision-intelligence-plataform
-An interactive analytics platform for business perfomance, KPI monitoring and decision scenario simulation.
