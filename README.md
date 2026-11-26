@@ -1,3 +1,9 @@
+## v2.0 dashboard update
+
+[Live demo](https://dgalkan-decision-intelligence.streamlit.app) (deployment and public access to be verified).
+
+Executive dashboard presentation, configurable synthetic demonstration volume and consistent portfolio branding. Existing analytical engine, SQL and tests are unchanged. v2.0 CI and manual browser review remain pending; prior v1.1 approval does not certify this revision.
+
 # Decision Intelligence Platform
 
 Independent portfolio project by Rodrigo Alcantara (DgAlkan), developed with AI assistance. Version 1.0 initial implementation.
