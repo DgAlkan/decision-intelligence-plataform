@@ -2,6 +2,9 @@ import streamlit as st
 import pandas as pd
 from engine import generate, metrics, scenario
 st.set_page_config(page_title="Decision Intelligence",layout="wide")
+lang = st.sidebar.radio("Idioma / Language", ["Português", "English"], horizontal=True, key="lab_language")
+def tr(en, pt):
+    return pt if lang == "Português" else en
 st.markdown("""<style>
 .stApp {background:#f1f5f9;}
 [data-testid="stSidebar"] {background:#142238;}
@@ -18,55 +21,55 @@ st.markdown("""<style>
 .lab-hero p {color:#cbd5e1;margin:0;}
 .lab-kicker {color:#7dd3fc;font-size:12px;font-weight:700;letter-spacing:1.8px;}
 </style>
-<section class="lab-hero"><div class="lab-kicker">ANALYTICS INTELLIGENCE LAB</div><h1>Decision Intelligence Platform</h1><p>Operational performance · Scenario planning</p></section>""", unsafe_allow_html=True)
-st.sidebar.header("Workspace")
-st.sidebar.caption("Configure your synthetic demonstration.")
-st.sidebar.markdown("### Product suite")
+<section class="lab-hero"><div class="lab-kicker">ANALYTICS INTELLIGENCE LAB</div><h1>Decision Intelligence Platform</h1><p>__LAB_SUBTITLE__</p></section>""".replace("__LAB_SUBTITLE__", tr("Operational performance · Scenario planning", "Desempenho operacional · Simulação de cenários")), unsafe_allow_html=True)
+st.sidebar.header(tr("Workspace", "Área de trabalho"))
+st.sidebar.caption(tr("Configure your synthetic demonstration.", "Configure sua demonstração com dados sintéticos."))
+st.sidebar.markdown(tr("### Product suite", "### Produtos"))
 st.sidebar.markdown("[01 · Data Quality](https://dgalkan-data-quality.streamlit.app)  \n[02 · Decision Intelligence](https://dgalkan-decision-intelligence.streamlit.app)  \n[03 · Customer Journey](https://dgalkan-customer-journey.streamlit.app)")
 st.sidebar.divider()
-st.sidebar.markdown("### Analysis controls")
-with st.expander("About this product · methodology"):
-    st.markdown("Explore operational performance and intervention scenarios.")
-    st.markdown("No-show rate excludes cancelled appointments. Scenario estimates depend on conversion and value assumptions; they are not causal forecasts.")
-    st.markdown("[Technical portfolio](https://github.com/DgAlkan) · Synthetic data only.")
-st.caption("Synthetic appointments · descriptive analysis, not causal inference")
-volume=st.sidebar.selectbox("Synthetic appointments",[12000,50000,100000])
+st.sidebar.markdown(tr("### Analysis controls", "### Filtros e parâmetros"))
+with st.expander(tr("About this product · methodology", "Sobre o produto · metodologia")):
+    st.markdown(tr("Explore operational performance and intervention scenarios.", "Explore o desempenho operacional e cenários de intervenção."))
+    st.markdown(tr("No-show rate excludes cancelled appointments. Scenario estimates depend on conversion and value assumptions; they are not causal forecasts.", "A taxa de No-show exclui cancelamentos. As estimativas dependem das premissas de conversão e valor; não são previsões causais."))
+    st.markdown(tr("[Technical portfolio](https://github.com/DgAlkan) · Synthetic data only.", "[Portfólio técnico](https://github.com/DgAlkan) · Apenas dados sintéticos."))
+st.caption(tr("Synthetic appointments · descriptive analysis, not causal inference", "Agendamentos sintéticos · análise descritiva, não causal"))
+volume=st.sidebar.selectbox(tr("Synthetic appointments", "Agendamentos sintéticos"),[12000,50000,100000])
 @st.cache_data
 def demo(n):
     return generate(n)
 df=demo(volume)
-units=st.sidebar.multiselect("Unit",sorted(df.unit.unique()),default=sorted(df.unit.unique()))
-services=st.sidebar.multiselect("Service",sorted(df.service.unique()),default=sorted(df.service.unique()))
-dates=st.sidebar.date_input("Period",(df.date.min().date(),df.date.max().date()))
+units=st.sidebar.multiselect(tr("Unit", "Unidade"),sorted(df.unit.unique()),default=sorted(df.unit.unique()))
+services=st.sidebar.multiselect(tr("Service", "Serviço"),sorted(df.service.unique()),default=sorted(df.service.unique()))
+dates=st.sidebar.date_input(tr("Period", "Período"),(df.date.min().date(),df.date.max().date()))
 if len(dates)!=2: st.stop()
 df=df[df.unit.isin(units)&df.service.isin(services)&df.date.between(pd.Timestamp(dates[0]),pd.Timestamp(dates[1]))]
 m=metrics(df)
-for c,(k,v) in zip(st.columns(4),[(k,m[k]) for k in ["appointments","attended","cancelled","no_show"]]): c.metric(k.replace("_"," ").title(),v)
-if m["rate"] is None: st.info("No eligible appointments"); st.stop()
-st.metric("No-show rate",f'{m["rate"]:.1%}')
+for c,(k,v) in zip(st.columns(4),[(k,m[k]) for k in ["appointments","attended","cancelled","no_show"]]): c.metric(tr(k.replace("_"," ").title(), {"appointments":"Agendamentos","attended":"Atendimentos realizados","cancelled":"Cancelamentos","no_show":"Não comparecimentos"}[k]),v)
+if m["rate"] is None: st.info(tr("No eligible appointments", "Nenhum agendamento elegível")); st.stop()
+st.metric(tr("No-show rate", "Taxa de No-show"),f'{m["rate"]:.1%}')
 monthly=df.assign(month=df.date.dt.to_period("M").astype(str)).groupby("month")[ "status"].apply(lambda s: s.eq("No show").sum()/s.ne("Cancelled").sum() if s.ne("Cancelled").sum() else None)
-st.subheader("Monthly no-show trend")
+st.subheader(tr("Monthly no-show trend", "Evolução mensal da taxa de No-show"))
 st.line_chart(monthly*100, y_label="No-show (%)", color="#2563EB")
 segments=df.groupby("unit").status.apply(lambda s: s.eq("No show").sum()/s.ne("Cancelled").sum() if s.ne("Cancelled").sum() else None)
-st.subheader("Unit comparison")
+st.subheader(tr("Unit comparison", "Comparação entre unidades"))
 valid_segments = segments.dropna()
 if not valid_segments.empty:
-    st.info(f"Highest observed unit no-show rate: {valid_segments.idxmax()} ({valid_segments.max():.1%}). Investigate volume and case mix before acting.")
+    st.info(tr(f"Highest observed unit no-show rate: {valid_segments.idxmax()} ({valid_segments.max():.1%}). Investigate volume and case mix before acting.", f"Maior taxa de No-show observada: {valid_segments.idxmax()} ({valid_segments.max():.1%}). Investigue volume e perfil dos atendimentos antes de agir."))
 st.bar_chart(segments*100, y_label="No-show (%)", color="#2563EB")
-st.subheader("Appointment status mix")
-st.bar_chart(df.status.value_counts(), color="#0F766E")
+st.subheader(tr("Appointment status mix", "Distribuição dos agendamentos por status"))
+st.bar_chart(df.status.value_counts().rename(index=lambda x: tr(x, {"Attended":"Atendido","Cancelled":"Cancelado","No show":"Não compareceu"}[x])), color="#0F766E")
 st.divider()
-st.subheader("Scenario simulator")
-target=st.number_input("Target rate (%)",0.,float(m["rate"]*100),float(m["rate"]*50))
-value=st.number_input("Value per recovered visit (BRL)",0.,value=150.)
-conversion=st.slider("Conversion assumption",0.,1.,.8)
+st.subheader(tr("Scenario simulator", "Simulador de cenários"))
+target=st.number_input(tr("Target rate (%)", "Taxa desejada (%)"),0.,float(m["rate"]*100),float(m["rate"]*50))
+value=st.number_input(tr("Value per recovered visit (BRL)", "Valor por atendimento recuperado (R$)"),0.,value=150.)
+conversion=st.slider(tr("Conversion assumption", "Premissa de conversão"),0.,1.,.8)
 s=scenario(m["eligible"],m["rate"],target/100,value,conversion)
-st.metric("Potential recovered visits",f'{s["recovered"]:,.1f}')
-st.metric("Potential gross value (BRL)",f'{s["potential_value"]:,.2f}')
-st.caption("Not guaranteed revenue or savings. Investigate high-rate segments before intervention.")
-st.download_button("Export filtered data",df.to_csv(index=False),"appointments.csv")
+st.metric(tr("Potential recovered visits", "Atendimentos potencialmente recuperados"),f'{s["recovered"]:,.1f}')
+st.metric(tr("Potential gross value (BRL)", "Valor bruto potencial (R$)"),f'{s["potential_value"]:,.2f}')
+st.caption(tr("Not guaranteed revenue or savings. Investigate high-rate segments before intervention.", "Não representa receita ou economia garantida. Investigue os segmentos antes de intervir."))
+st.download_button(tr("Export filtered data", "Exportar dados filtrados"),df.to_csv(index=False),"appointments.csv")
 
 
 st.divider()
-st.caption("Rodrigo Alcantara | Analytics Intelligence Lab | Independent synthetic demonstration")
+st.caption(tr("Rodrigo Alcantara | Analytics Intelligence Lab | Independent synthetic demonstration", "Rodrigo Alcantara | Analytics Intelligence Lab | Demonstração independente com dados sintéticos"))
 st.markdown("[Data Quality](https://dgalkan-data-quality.streamlit.app) · [Decision Intelligence](https://dgalkan-decision-intelligence.streamlit.app) · [Customer Journey](https://dgalkan-customer-journey.streamlit.app)")
