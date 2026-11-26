@@ -2,10 +2,14 @@ import streamlit as st
 import pandas as pd
 from engine import generate, metrics, scenario
 st.set_page_config(page_title="Decision Intelligence",layout="wide")
-st.caption("ANALYTICS INTELLIGENCE LAB | Independent portfolio project")
+st.caption("ANALYTICS INTELLIGENCE LAB / PORTFOLIO / V2.0")
 st.title("Decision Intelligence | Operations")
 st.caption("Synthetic appointments · descriptive analysis, not causal inference")
-df=generate()
+volume=st.sidebar.selectbox("Synthetic appointments",[12000,50000,100000])
+@st.cache_data
+def demo(n):
+    return generate(n)
+df=demo(volume)
 units=st.sidebar.multiselect("Unit",sorted(df.unit.unique()),default=sorted(df.unit.unique()))
 services=st.sidebar.multiselect("Service",sorted(df.service.unique()),default=sorted(df.service.unique()))
 dates=st.sidebar.date_input("Period",(df.date.min().date(),df.date.max().date()))
@@ -16,9 +20,14 @@ for c,(k,v) in zip(st.columns(4),[(k,m[k]) for k in ["appointments","attended","
 if m["rate"] is None: st.info("No eligible appointments"); st.stop()
 st.metric("No-show rate",f'{m["rate"]:.1%}')
 monthly=df.assign(month=df.date.dt.to_period("M").astype(str)).groupby("month")[ "status"].apply(lambda s: s.eq("No show").sum()/s.ne("Cancelled").sum() if s.ne("Cancelled").sum() else None)
-st.line_chart(monthly)
+st.subheader("Monthly no-show trend")
+st.line_chart(monthly*100, y_label="No-show (%)", color="#2563EB")
 segments=df.groupby("unit").status.apply(lambda s: s.eq("No show").sum()/s.ne("Cancelled").sum() if s.ne("Cancelled").sum() else None)
-st.bar_chart(segments)
+st.subheader("Unit comparison")
+st.bar_chart(segments*100, y_label="No-show (%)", color="#2563EB")
+st.subheader("Appointment status mix")
+st.bar_chart(df.status.value_counts(), color="#0F766E")
+st.divider()
 st.subheader("Scenario simulator")
 target=st.number_input("Target rate (%)",0.,float(m["rate"]*100),float(m["rate"]*50))
 value=st.number_input("Value per recovered visit (BRL)",0.,value=150.)
