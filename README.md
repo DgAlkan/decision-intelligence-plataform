@@ -25,9 +25,7 @@ Run SQL with DuckDB from the repository root after generating the CSV. See [meth
 - app.py: interactive dashboard and CSV export
 - sql/analysis.sql: analytical SQL
 - tests/: automated checks
-- .github/workflows/: CI configuration
-
-No employer data or proprietary code. Synthetic demonstration only. No hosted deployment or production performance claims. Test execution must be verified before release.
+- github/workflows/: CI configuration
 
 ## Original introduction
 
