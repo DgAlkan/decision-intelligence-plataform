@@ -18,9 +18,17 @@ st.markdown("""<style>
 .lab-hero p {color:#cbd5e1;margin:0;}
 .lab-kicker {color:#7dd3fc;font-size:12px;font-weight:700;letter-spacing:1.8px;}
 </style>
-<section class="lab-hero"><div class="lab-kicker">ANALYTICS INTELLIGENCE LAB / 02 / V2.1</div><h1>Decision Intelligence Platform</h1><p>Operational performance · Scenario planning</p></section>""", unsafe_allow_html=True)
+<section class="lab-hero"><div class="lab-kicker">ANALYTICS INTELLIGENCE LAB / 02 / V2.2</div><h1>Decision Intelligence Platform</h1><p>Operational performance · Scenario planning</p></section>""", unsafe_allow_html=True)
 st.sidebar.header("Workspace")
 st.sidebar.caption("Configure your synthetic demonstration.")
+st.sidebar.markdown("### Product suite")
+st.sidebar.markdown("[01 · Data Quality](https://dgalkan-data-quality.streamlit.app)  \n[02 · Decision Intelligence](https://dgalkan-decision-intelligence.streamlit.app)  \n[03 · Customer Journey](https://dgalkan-customer-journey.streamlit.app)")
+st.sidebar.divider()
+st.sidebar.markdown("### Analysis controls")
+with st.expander("About this product · methodology"):
+    st.markdown("Explore operational performance and intervention scenarios.")
+    st.markdown("No-show rate excludes cancelled appointments. Scenario estimates depend on conversion and value assumptions; they are not causal forecasts.")
+    st.markdown("[Technical portfolio](https://github.com/DgAlkan) · Synthetic data only.")
 st.caption("Synthetic appointments · descriptive analysis, not causal inference")
 volume=st.sidebar.selectbox("Synthetic appointments",[12000,50000,100000])
 @st.cache_data
@@ -41,6 +49,9 @@ st.subheader("Monthly no-show trend")
 st.line_chart(monthly*100, y_label="No-show (%)", color="#2563EB")
 segments=df.groupby("unit").status.apply(lambda s: s.eq("No show").sum()/s.ne("Cancelled").sum() if s.ne("Cancelled").sum() else None)
 st.subheader("Unit comparison")
+valid_segments = segments.dropna()
+if not valid_segments.empty:
+    st.info(f"Highest observed unit no-show rate: {valid_segments.idxmax()} ({valid_segments.max():.1%}). Investigate volume and case mix before acting.")
 st.bar_chart(segments*100, y_label="No-show (%)", color="#2563EB")
 st.subheader("Appointment status mix")
 st.bar_chart(df.status.value_counts(), color="#0F766E")
