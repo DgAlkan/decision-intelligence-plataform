@@ -1,6 +1,14 @@
-# Validation report — v1.1 candidate
+# Validation report — v1.1
 
-Static review completed; corrective changes and integration tests committed. Existing and new tests run through GitHub Actions on push. Execution results have not yet been independently verified. No production benchmark or deployment approval. Synthetic data only.
+## Evidence — 2026-11-26
+
+GitHub Actions workflow Tests #7 displayed a successful result in the repository owner's screenshot for commit [c0b6d05](https://github.com/DgAlkan/decision-intelligence-plataform/commit/c0b6d055549b49719cf49c1e95963fcdd0473287). The workflow executes pytest, including Python, DuckDB integration and Streamlit AppTest checks. The earlier AppTest relative-path failure was corrected using an absolute path derived from the test file.
+
+Evidence source: owner-provided screenshot of the Actions overview; detailed final test logs were not independently retrieved. This confirms the workflow result, not exhaustive coverage.
+
+## Remaining checks
+
+Manual visual and interaction review, performance benchmarks, publication review and deployment remain pending. Synthetic data only.
 
 ## Reproduce
 
@@ -9,4 +17,4 @@ pip install -r requirements.txt
 python -m pytest -v
 ```
 
-Check the Actions tab for execution evidence. Do not interpret this report as a passing test result.
+[Actions history](https://github.com/DgAlkan/decision-intelligence-plataform/actions)
